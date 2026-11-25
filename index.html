@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>XXXX工程進度表</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f3f5f2;--sf:#fff;--tx:#1d2a24;--mu:#6b7a72;--ln:#d5dcd7;--ac:#1f6f5c;--hd:#dbe9e2;--wk:#eef0ee;--hol:#fbe3df}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#151b18;--sf:#1e2622;--tx:#e6ece8;--mu:#93a39a;--ln:#33403a;--ac:#5fc3a8;--hd:#27362f;--wk:#232c27;--hol:#4a2a27}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#151b18;--sf:#1e2622;--tx:#e6ece8;--mu:#93a39a;--ln:#33403a;--ac:#5fc3a8;--hd:#27362f;--wk:#232c27;--hol:#4a2a27}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.4 "Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;padding:16px}
+h1{font-size:20px;margin:0 0 12px}
+.bar{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;background:var(--sf);border:1px solid var(--ln);padding:10px 14px;border-radius:6px;margin-bottom:12px}
+.seg{display:inline-flex;border:1px solid var(--ac);border-radius:5px;overflow:hidden}
+.seg button{border:0;background:transparent;color:var(--ac);padding:6px 14px;font:inherit;cursor:pointer}
+.seg button.on{background:var(--ac);color:var(--sf)}
+button.b,select,input,textarea{font:inherit;color:var(--tx);background:var(--sf);border:1px solid var(--ln);border-radius:4px;padding:4px 6px}
+button.b{cursor:pointer;padding:6px 12px}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--ac);outline-offset:1px}
+label{display:inline-flex;align-items:center;gap:6px;color:var(--mu)}
+.sum{margin-left:auto;color:var(--mu)}.sum b{color:var(--tx)}
+.main{display:flex;gap:0;background:var(--sf);border:1px solid var(--ln);border-radius:6px;overflow:hidden}
+.left{flex:none;border-right:2px solid var(--ln)}
+.right{flex:1;overflow-x:auto;min-width:0}
+.hr{height:60px;display:flex;align-items:center;background:var(--hd);border-bottom:1px solid var(--ln);font-weight:600}
+.row{height:38px;display:flex;align-items:center;border-bottom:1px solid var(--ln)}
+.row input{height:28px}
+.c{padding:0 4px;flex:none}
+.n{width:182px}.d{width:62px;text-align:right}.dt{width:132px}.k{width:34px}.x{width:30px}
+.x button{border:0;background:none;color:var(--mu);cursor:pointer;font-size:16px}
+input[type=color]{width:26px;padding:0;height:26px!important}
+.sw{width:26px;height:26px;border-radius:4px;border:1px solid var(--ln);cursor:pointer;padding:0}
+#pal{position:fixed;z-index:20;background:var(--sf);border:1px solid var(--ln);border-radius:6px;padding:8px;display:grid;grid-template-columns:repeat(6,26px);gap:6px;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+#pal button{width:26px;height:26px;border-radius:4px;border:1px solid rgba(0,0,0,.3);cursor:pointer;padding:0}
+#pal .cu{grid-column:1/-1;display:flex;align-items:center;gap:6px;color:var(--mu)}
+.g{position:relative}
+.mh{display:flex}.mh div{flex:none;text-align:center;border-left:1px solid var(--ln);height:30px;line-height:30px;background:var(--hd);font-weight:600}
+.cells{position:absolute;inset:0}
+.bar-t{position:absolute;height:16px;top:11px;border-radius:2px;border:1px solid rgba(0,0,0,.35)}
+.gr{position:relative;height:38px;border-bottom:1px solid var(--ln);background-image:linear-gradient(to right,var(--ln) 1px,transparent 1px)}
+.man{display:flex}.man div{flex:none;border-left:1px solid var(--ln);text-align:center}
+.man input{width:44px;text-align:center;border:0;color:#c0392b;font-weight:700;background:transparent}
+.hl{position:absolute;top:0;bottom:0;background:var(--hol);opacity:.7}
+.hl.rs{background:var(--ln);opacity:.45}
+.ttl{font:inherit;width:min(100%,520px);border:0;border-bottom:1px dashed var(--ln);background:transparent;padding:2px 0}
+.row.act,.gr.act{background-color:var(--wk)}
+.bar-t.a{background-image:repeating-linear-gradient(45deg,rgba(0,0,0,.3) 0 4px,transparent 4px 8px)}
+.vr{font-size:12px}
+.tabs{display:flex;gap:4px;align-items:flex-end;overflow-x:auto;margin:0 0 10px;border-bottom:2px solid var(--ln);padding-top:2px}
+.tabw{display:inline-flex;align-items:stretch;flex:none;border:1px solid var(--ln);border-bottom:0;border-radius:6px 6px 0 0;background:var(--wk)}
+.tabw.on{background:var(--sf);border-color:var(--ac);margin-bottom:-2px;border-bottom:2px solid var(--sf)}
+.tab,.tclose{border:0;background:transparent;color:var(--tx);font:inherit;cursor:pointer;padding:7px 12px}
+.tab{max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tclose{padding:7px 8px;color:var(--mu)}
+.tclose:hover{color:#c0392b}
+.tab.tplus{flex:none;border:1px dashed var(--ln);border-bottom:0;border-radius:6px 6px 0 0;color:var(--mu);padding:7px 12px}
+@media print{.tabs{display:none}}
+.frv,.man input.frv{color:#c26a00}
+@media (prefers-color-scheme:dark){.frv,.man input.frv{color:#ffb347}}
+.row.rv,.gr.rv{background-color:#fff4dc}
+@media (prefers-color-scheme:dark){.row.rv,.gr.rv{background-color:#3a3220}}
+.bar-t.rvb{background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.5) 0 3px,transparent 3px 6px);border-style:dashed}
+.tw3 .ty{width:104px}
+.pr{width:64px}.pr select{width:58px}
+.bar-t.lnk .hd.l{display:none}
+.sum,.sum b{color:var(--tx);font-size:17px}
+body .sum,body .sum *{font-weight:700!important}
+.sum .lg{font-size:14px}
+.fpi,.man input.fpi{color:#1f5fbf}.fai,.man input.fai{color:#7b1fa2}
+@media (prefers-color-scheme:dark){.fpi,.man input.fpi{color:#7fb2ff}.fai,.man input.fai{color:#d6a3ff}}
+button:disabled,input:disabled,select:disabled{opacity:1;cursor:not-allowed;-webkit-text-fill-color:currentColor}
+input:disabled,select:disabled,button.b:disabled{background:var(--wk)}
+.lk .bar-t[data-bk="p"] .hd{display:none}
+.cny{position:absolute;top:62px;transform:translateX(-50%);color:#d32f2f;font-size:12px;line-height:14px;pointer-events:none;white-space:nowrap;z-index:2}
+.scw{display:flex;margin-top:12px;background:#fff;border:1px solid var(--ln);border-radius:6px;overflow:hidden}
+.scl{flex:none}.scr{flex:1;overflow-x:auto;min-width:0}
+@media(max-width:700px){.scw{flex-direction:column}}
+.mh.yr div{border-bottom:1px solid var(--ln)}
+:root{--tx:#0b1410;--mu:#2f3b35}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--tx:#f5f8f6;--mu:#d0dad4}}
+body,body *{font-weight:400!important}
+input::placeholder{color:var(--mu);opacity:.7}
+.today{position:absolute;top:0;bottom:0;width:0;border-left:2px dashed #e53935;pointer-events:none;z-index:3}
+.today span{position:absolute;top:2px;left:3px;font-size:11px;line-height:16px;background:#e53935;color:#fff;padding:0 4px;border-radius:2px;white-space:nowrap}
+.sw.sm{width:16px;height:16px;vertical-align:-3px}
+.sw{font-weight:700;font-size:13px;line-height:1}
+:root{--tb:#d6e9fa}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--tb:#243b55}}
+.row.tot,.gr.tot{background-color:var(--tb);font-weight:700}
+.row.tot .mgi,.row.tot .m2 .mgi{background:var(--tb)}
+.bar-t.tot{background:#000}
+.hd{position:absolute;top:-3px;bottom:-3px;width:8px;cursor:ew-resize;touch-action:none;z-index:2}
+.hd.l{left:-3px}.hd.r{right:-3px}.hd:hover{background:rgba(0,0,0,.28)}
+#dtip{position:fixed;z-index:30;background:var(--tx);color:var(--bg);padding:3px 8px;border-radius:4px;font-size:12px;pointer-events:none;white-space:nowrap}
+.dw{display:inline-flex;align-items:center;gap:2px}
+.cal{position:relative;width:24px;height:28px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;color:var(--tx)}
+.cal input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;border:0;padding:0}
+.mg{width:216px;height:100%;position:relative;flex:none}
+.mgi{position:absolute;left:0;top:0;width:100%;height:100%;display:flex;align-items:center}
+.m2 .mgi{height:var(--h,76px);background:var(--sf);z-index:1;border-bottom:1px solid var(--ln)}
+.vl{position:absolute;top:11px;line-height:16px;font-size:12px;font-weight:600;white-space:nowrap}
+.ty{width:68px;white-space:nowrap;color:var(--mu);font-size:13px}
+.lg i{display:inline-block;width:12px;height:12px;border:1px solid var(--ln);vertical-align:-2px;margin:0 3px 0 10px}
+details{margin-top:12px;background:var(--sf);border:1px solid var(--ln);border-radius:6px;padding:8px 14px}
+summary{cursor:pointer;font-weight:600}
+textarea{width:100%;height:70px;margin-top:8px}
+@media(max-width:700px){.main{flex-direction:column}.left{overflow-x:auto;border-right:0;border-bottom:2px solid var(--ln)}.sum{margin-left:0}}
+@media print{.bar,details,.x,.ctl{display:none}body{padding:0}}
+</style>
+</head>
+<body>
+<div class="tabs" id="tabs" role="tablist" aria-label="案件"></div>
+<h1><input id="ttl" class="ttl" aria-label="專案名稱" placeholder="XXXX工程進度表"></h1>
+<div class="bar">
+  <span class="seg" role="group" aria-label="工期計算方式"><button id="mCal" class="on">日曆天</button><button id="mWork">工作天</button></span>
+  <label>時間刻度 <select id="scale"><option value="day">日</option><option value="week">週</option><option value="biweek">雙週</option><option value="month">月</option><option value="quarter">季</option></select></label>
+  <label>資金單位 <input id="fu" style="width:64px" aria-label="資金單位"></label>
+  <label>年份 <select id="yr"><option value="1">民國</option><option value="0">西元</option></select></label>
+  <label>週休 <select id="rest"><option value="2">週休二日</option><option value="1">週休一日(日)</option><option value="0">無週休</option></select></label>
+  <label><input type="checkbox" id="incl"> 起日計入工期</label>
+  <label><input type="checkbox" id="act"> 顯示實際</label>
+  <label><input type="checkbox" id="rv"> 顯示修正預定</label>
+  <label><input type="checkbox" id="td"> 今日線</label>
+  <label><input type="checkbox" id="scx"> S曲線</label>
+  <span style="color:var(--mu)">全部套用顏色 預定 <button class="sw sm" id="gP" data-sw="*" data-k="p" aria-label="預定全部顏色"></button><span id="gAw"> 實際 <button class="sw sm" id="gA" data-sw="*" data-k="a" aria-label="實際全部顏色"></button></span></span>
+  <button class="b" id="lock" aria-pressed="false">🔓 鎖定預定</button>
+  <button class="b" id="add">＋ 新增項目</button>
+  <button class="b" id="xls">匯出 XLSX</button>
+  <button class="b" id="csv">匯出 CSV</button>
+  <button class="b" id="impB">匯入 XLSX</button><input type="file" id="imp" accept=".xlsx,.xls,.csv" hidden>
+  <span id="msg" role="status" style="color:var(--mu)"></span>
+  <label>紙張 <select id="psz" aria-label="紙張大小"><option value="a4">A4</option><option value="a3">A3</option></select><select id="por" aria-label="紙張方向"><option value="landscape">橫向</option><option value="portrait">直向</option></select></label>
+  <button class="b" id="pdf">匯出 PDF（可列印）</button>
+  <span class="sum" id="sum"></span>
+</div>
+<div class="main"><div class="left" id="left"></div><div class="right"><div class="g" id="gantt"></div></div></div>
+<div class="scw" id="scw"><div class="scl"><canvas id="scc1" style="display:block"></canvas></div><div class="scr" id="scr"><canvas id="scc" style="display:block"></canvas></div></div>
+<div class="scw" id="scw2"><div class="scl"><canvas id="scc1b" style="display:block"></canvas></div><div class="scr" id="scr2"><canvas id="sccb" style="display:block"></canvas></div></div>
+<details open><summary>休假日設定(工作天模式扣除，圖上以紅底標示)</summary>
+<label style="display:flex;margin-top:8px"><input type="checkbox" id="cny"> 農曆春節（自動計算各年：除夕起，至初 <input type="number" id="cnyd" min="1" max="9" style="width:56px" aria-label="春節至初幾"> ）</label>
+<div style="color:var(--mu);margin-top:6px">其他休假日：</div>
+<textarea id="hol" aria-label="其他休假日"></textarea>
+<div style="color:var(--mu);margin-top:4px">每行一筆，格式：2027/2/5 或 2027/2/5-2027/2/10。週休設定另外計算。</div></details>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+const DAY=864e5,MW=84,RH=38;
+const U=(y,m,d)=>Date.UTC(y,m-1,d)/DAY;
+const iso=n=>new Date(n*DAY).toISOString().slice(0,10);
+const pd=s=>{const[a,b,c]=s.split('-').map(Number);return U(a,b,c)};
+const dow=n=>new Date(n*DAY).getUTCDay();
+const T=(n,a,b,col)=>({n,s:a,e:b,c:col});
+const mkSample=()=>{const S={mode:'cal',rest:2,incl:false,
+hol:'',
+man:{},
+t:[T('室內點交拆除','2026-09-08','2026-11-06','#f48fb1'),T('外牆切割打石(變使)','2026-12-10','2027-01-30','#f48fb1'),T('外牆裝修(變使)','2027-02-01','2027-04-01','#14a7e0'),T('景觀植栽優化','2027-01-01','2027-01-15','#1aa35a'),T('BF地坪油漆修整','2027-04-01','2027-05-30','#c0641c'),T('機空消配管','2026-11-10','2027-05-30','#e62117'),T('室內隔間','2026-11-15','2027-04-30','#8eaadb'),T('浴廁防水','2027-01-10','2027-03-15','#8eaadb'),T('浴廁壁地磁磚','2027-02-10','2027-03-30','#8eaadb'),T('客房木作油漆','2027-03-01','2027-04-30','#8eaadb'),T('公設木作油漆','2027-04-01','2027-05-15','#8eaadb'),T('地坪SPC,地毯','2027-05-01','2027-05-31','#8eaadb'),T('衛浴設備','2027-06-01','2027-06-15','#8eaadb'),T('燈具設備','2027-06-05','2027-06-20','#8eaadb'),T('活動傢俱','2027-06-05','2027-06-20','#8eaadb'),T('清潔驗收移交','2027-06-21','2027-06-30','#8eaadb')]};
+[2,2,4,4,4,4,4,4,4,4,2,2,2].forEach((v,i)=>{const m=8+i;S.man[(m>12?2027:2026)+'-'+((m-1)%12+1)]=v});return S};
+let PROJ={cur:0,list:[]};
+try{const x=localStorage.getItem('sched2');if(x){const o=JSON.parse(x);if(o&&Array.isArray(o.list)&&o.list.length)PROJ=o}else{const y=localStorage.getItem('sched1');if(y)PROJ.list=[JSON.parse(y)]}}catch(e){}
+if(!PROJ.list.length)PROJ.list=[mkSample()];
+PROJ.cur=Math.max(0,Math.min(PROJ.cur|0,PROJ.list.length-1));
+let S=PROJ.list[PROJ.cur];
+const save=()=>{try{localStorage.setItem('sched2',JSON.stringify(PROJ))}catch(e){}};
+
+function holSet(){const h=new Set();S.hol.split('\n').forEach(l=>{const p=l.trim().split(/[-~–]/).map(x=>x.trim().split('/').map(Number)).filter(a=>a.length==3&&a[0]);if(!p.length)return;const a=U(...p[0]),b=p.length>1?U(...p[1]):a;for(let i=a;i<=b;i++)h.add(i)});cnyR().forEach(([a,b])=>{for(let i=a;i<=b;i++)h.add(i)});return h}
+let H=new Set();
+const isRest=n=>{const w=dow(n);return S.rest==2?(w==0||w==6):S.rest==1?w==0:false};
+const isWork=n=>!isRest(n)&&!H.has(n);
+function dur(s,e){if(e<s)return 0;const a=S.incl?s:s+1;if(S.mode=='cal')return e-a+1;let c=0;for(let i=a;i<=e;i++)if(isWork(i))c++;return c}
+function endOf(s,d){if(d<=0)return s;if(S.mode=='cal')return S.incl?s+d-1:s+d;let c=0,i=s;if(S.incl&&isWork(s))c=1;while(c<d){i++;if(isWork(i))c++;if(i-s>20000)break}return i}
+
+const pad2=n=>String(n).padStart(2,'0');
+function fd(s){const[a,b,c]=s.split('-');return S.roc!==false?(+a-1911)+'/'+b+'/'+c:a+'/'+b+'/'+c}
+function parseD(s){const m=String(s).match(/(\d{2,4})\D+(\d{1,2})\D+(\d{1,2})/);if(!m)return null;let y=+m[1];if(y<1900)y+=1911;const t=y+'-'+pad2(+m[2])+'-'+pad2(+m[3]);return iso(U(y,+m[2],+m[3]))===t?t:null}
+function di(v,i,f,al){return S.roc!==false?`<span class="dw"><input type="text" inputmode="numeric" style="width:94px" placeholder="115/09/08" value="${v?fd(v):''}" data-i="${i}" data-f="${f}" aria-label="${al}"${LK(f,i)}><label class="cal" title="日曆選擇">📅<input type="date" value="${v||''}" data-i="${i}" data-f="${f}" aria-label="${al}日曆"${LK(f,i)}></label></span>`:`<input type="date" value="${v||''}" data-i="${i}" data-f="${f}" aria-label="${al}"${LK(f,i)}>`}
+function ink(h){const n=parseInt(String(h).slice(1),16)||0,r=n>>16,g=n>>8&255,b=n&255;return (r*299+g*587+b*114)/1000>150?'#000':'#fff'}
+function yrRow(){const g=GM;let h='',i=0;while(i<g.cs.length){const y=new Date(g.cs[i]*DAY).getUTCFullYear();let j=i;while(j<g.cs.length&&new Date(g.cs[j]*DAY).getUTCFullYear()==y)j++;h+=`<div style="width:${(j-i)*g.CW}px">${S.roc!==false?y-1911:y}年</div>`;i=j}return `<div class="mh yr" style="width:${g.cs.length*g.CW}px">${h}</div>`}
+function sData(){
+ const tk=S.t.filter(t=>t.s&&t.e);if(!tk.length)return null;
+ const wt=t=>Math.max(dur(pd(t.s),pd(t.e)),1),W=tk.reduce((a,t)=>a+wt(t),0),ak=S.act?tk.filter(t=>t.as&&t.ae):[];
+ const d0=Math.min(...tk.map(t=>pd(t.s)),...ak.map(t=>pd(t.as))),d1=Math.max(...tk.map(t=>pd(t.e)),...ak.map(t=>pd(t.ae)));
+ const pg=(s,e,d)=>d<s?0:d>=e?1:(d-s+1)/(e-s+1),P=[],A=[],am=ak.length?Math.max(...ak.map(t=>pd(t.ae))):0;
+ for(let d=d0;d<=d1;d++){let p=0,a=0;tk.forEach(t=>{p+=wt(t)*pg(pd(t.s),pd(t.e),d);if(ak.includes(t))a+=wt(t)*pg(pd(t.as),pd(t.ae),d)});P.push([d,p/W*100]);if(d<=am)A.push([d,a/W*100])}
+ return{d0,d1,P,A:ak.length?A:null}}
+const SF='"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif',sf=(n,u)=>Math.round(n*u)+'px '+SF;
+function headS(x,ox,oy,w,h,u,D,tt){
+ x.save();x.translate(ox,oy);x.fillStyle='#fff';x.fillRect(0,0,w,h);x.textBaseline='middle';x.textAlign='left';x.fillStyle='#000';
+ x.font=sf(16,u);x.fillText(tt||'工期 S 曲線（預定／實際累計進度，依工期加權）',10*u,14*u);
+ if(!D){x.font=sf(14,u);x.fillText(tt?'尚無資料，請在「資金預估」列輸入每月金額':'尚無資料',10*u,40*u);x.restore();return}
+ x.lineWidth=3*Math.max(u,1);x.strokeStyle='#1f5fbf';x.beginPath();x.moveTo(10*u,36*u);x.lineTo(40*u,36*u);x.stroke();x.fillStyle='#000';x.font=sf(14,u);x.fillText('預定',46*u,36*u);
+ if(D.R){x.strokeStyle='#c26a00';x.beginPath();x.moveTo(200*u,36*u);x.lineTo(230*u,36*u);x.stroke();x.fillStyle='#000';x.fillText('修正',236*u,36*u)}
+ if(D.A){x.strokeStyle=D.cA||'#d32f2f';x.beginPath();x.moveTo(100*u,36*u);x.lineTo(130*u,36*u);x.stroke();x.fillStyle='#000';x.fillText('實際',136*u,36*u)}
+ const dn=new Date(),n=U(dn.getFullYear(),dn.getMonth()+1,dn.getDate());
+ if(n>=D.d0&&n<=D.d1){const i=n-D.d0,pv=D.P[i][1],av=D.A?D.A[Math.min(i,D.A.length-1)][1]:null;
+  const sg=D.stat?D.stat(i,pv,av,n):[['今日 '+fd(iso(n))+'　','#000'],['預定 '+pv.toFixed(1)+'%','#1f5fbf']].concat(av==null?[]:[['　','#000'],['實際 '+av.toFixed(1)+'%','#d32f2f'],['　差異 '+(av-pv>=0?'+':'')+(av-pv).toFixed(1)+'%','#000']]);let px=10*u;sg.forEach(q=>{x.fillStyle=q[1];x.fillText(q[0],px,56*u);px+=x.measureText(q[0]).width})}
+ x.restore()}
+function plotS(x,Xo,oy,Gw,h,u,D){
+ const g=GM,T=70*u,B=50*u,ph=h-T-B,YM=D.ym||100,Y=v=>T+ph-v/YM*ph,lw=3*Math.max(u,1),XO=g.xOf;
+ x.save();x.translate(Xo,oy);x.fillStyle='#fff';x.fillRect(0,0,Gw,h);
+ g.cs.forEach((n,i)=>{x.strokeStyle='#d5dcd7';x.lineWidth=1;x.beginPath();x.moveTo(i*g.CW,T);x.lineTo(i*g.CW,T+ph);x.stroke()});
+ x.textBaseline='middle';x.textAlign='left';x.font=sf(13,u);
+ for(let v=0;v<=YM;v+=20){x.strokeStyle='#d5dcd7';x.lineWidth=1;x.beginPath();x.moveTo(0,Y(v));x.lineTo(Gw,Y(v));x.stroke();x.fillStyle='#000';x.fillText(v+'%',4*u,Y(v)-(v==0?9:0)*u)}
+ x.textAlign='center';x.fillStyle='#000';
+ g.cs.forEach((n,i)=>x.fillText(g.lab(n),i*g.CW+g.CW/2,T+ph+14*u));
+ {let i=0;while(i<g.cs.length){const y=new Date(g.cs[i]*DAY).getUTCFullYear();let j=i;while(j<g.cs.length&&new Date(g.cs[j]*DAY).getUTCFullYear()==y)j++;x.fillText((S.roc!==false?y-1911:y)+'年',(i+j)/2*g.CW,T+ph+34*u);i=j}}
+ x.strokeStyle='#888';x.lineWidth=1;x.strokeRect(0,T,Gw,ph);
+ if(D.bars){const BM=D.bm,fmt=n=>String(Math.round(n*10)/10);x.textAlign='center';x.textBaseline='bottom';
+  D.bars.forEach(q=>{const l=XO(q.a),w=XO(q.b)-l,bw=Math.max(w*(D.R?.26:.34),2),dr=(v,xx,fill,stroke)=>{if(!v)return;const hv=v/BM*ph;x.fillStyle=fill;x.fillRect(xx,T+ph-hv,bw,hv);x.strokeStyle=stroke;x.lineWidth=1;x.strokeRect(xx+.5,T+ph-hv+.5,bw-1,Math.max(hv-1,0));if(bw>=24*u){x.fillStyle=stroke;x.font=sf(10,u);x.textAlign='center';x.textBaseline='bottom';x.fillText(String(v),xx+bw/2,T+ph-hv-2*u)}};
+   dr(q.p,l+w/2+(D.R?-1.5*bw-1:-bw-1),'rgba(31,95,191,.35)','#1f5fbf');if(D.R)dr(q.r,l+w/2-.5*bw,'rgba(224,138,0,.35)','#c26a00');dr(q.q,l+w/2+(D.R?.5*bw+1:1),D.cAf||'rgba(211,47,47,.35)',D.cA||'#d32f2f')});
+  x.textBaseline='middle';x.textAlign='right';x.font=sf(12,u);x.fillStyle='#000';
+  for(let v=0;v<=YM;v+=20)x.fillText(fmt(BM*v/YM),Gw-4*u,Y(v)-(v==0?9*u:0));
+  x.fillText(D.unit+'/月',Gw-4*u,T-10*u)}
+ const line=(a,c)=>{x.strokeStyle=c;x.lineWidth=lw;x.lineJoin='round';x.beginPath();x.moveTo(XO(D.d0),Y(0));a.forEach(p=>x.lineTo(XO(p[0]+1),Y(p[1])));x.stroke()};
+ line(D.P,'#1f5fbf');if(D.R)line(D.R,'#c26a00');if(D.A)line(D.A,D.cA||'#d32f2f');
+ const dn=new Date(),n=U(dn.getFullYear(),dn.getMonth()+1,dn.getDate());
+ if(n>=D.d0&&n<=D.d1){const i=n-D.d0,px=(XO(n)+XO(n+1))/2,pv=D.P[i][1],av=D.A?D.A[Math.min(i,D.A.length-1)][1]:null;
+  x.save();x.strokeStyle='#e53935';x.lineWidth=2;x.setLineDash([6,4]);x.beginPath();x.moveTo(px,T);x.lineTo(px,T+ph);x.stroke();x.restore();
+  const dot=(v,c)=>{x.fillStyle=c;x.beginPath();x.arc(px,Y(v),4*Math.max(u,1),0,7);x.fill()};dot(pv,'#1f5fbf');if(D.R)dot(D.R[i][1],'#c26a00');if(av!=null)dot(av,D.cA||'#d32f2f')}
+ x.restore()}
+function drawSC(){
+ const b=document.getElementById('scw');if(!b)return;b.style.display=S.scv===false?'none':'';document.getElementById('scw2').style.display=S.scv===false?'none':'';if(S.scv===false||!GM||!GM.xOf)return;
+ const D=sData(),h=340,r=window.devicePixelRatio||1,lw=document.getElementById('left').offsetWidth,gw=GM.cs.length*GM.CW;
+ const sz=(c,w)=>{c.style.width=w+'px';c.style.height=h+'px';c.width=Math.round(w*r);c.height=Math.round(h*r);const x=c.getContext('2d');x.setTransform(r,0,0,r,0,0);return x};
+ headS(sz(document.getElementById('scc1'),lw),0,0,lw,h,1,D);const x2=sz(document.getElementById('scc'),gw);if(D)plotS(x2,0,0,gw,h,1,D);
+ const F=fData();headS(sz(document.getElementById('scc1b'),lw),0,0,lw,h,1,F,'資金 S 曲線（折線＝累計%，柱＝每月金額）');const x3=sz(document.getElementById('sccb'),gw);if(F)plotS(x3,0,0,gw,h,1,F)}
+const CNYT={2020:[1,25],2021:[2,12],2022:[2,1],2023:[1,22],2024:[2,10],2025:[1,29],2026:[2,17],2027:[2,6],2028:[1,26],2029:[2,13],2030:[2,3],2031:[1,23],2032:[2,11],2033:[1,31],2034:[2,19],2035:[2,8],2036:[1,28],2037:[2,15],2038:[2,4],2039:[1,24],2040:[2,12]};
+function cnyR(){if(S.cny===false)return[];const N=S.cnyd||5,o=[];for(const y in CNYT){const n=U(+y,CNYT[y][0],CNYT[y][1]);o.push([n-1,n+N-1])}return o}
+function fData(){
+ const mk=o=>Object.keys(o||{}).map(k=>{const q=k.split('-').map(Number);return{y:q[0],m:q[1],v:+o[k]||0}}).filter(q=>q.v),P=mk(S.fp),A=S.act?mk(S.fa):[],Rv=S.rv?mk(S.fr):[];
+ if(!P.length)return null;
+ const all=P.concat(A,Rv),a0=Math.min(...all.map(q=>U(q.y,q.m,1))),a1=Math.max(...all.map(q=>U(q.y,q.m+1,1)-1)),b=sData(),d0=b?Math.min(b.d0,a0):a0,d1=b?Math.max(b.d1,a1):a1,tot=P.reduce((s,q)=>s+q.v,0),am=A.length?Math.max(...A.map(q=>U(q.y,q.m+1,1)-1)):0;
+ const run=(L,lim)=>{const mp={};L.forEach(q=>{mp[q.y*100+q.m]=q.v});const o=[];let c=0;for(let d=d0;d<=Math.min(d1,lim);d++){const dt=new Date(d*DAY),y=dt.getUTCFullYear(),m=dt.getUTCMonth()+1,dim=new Date(Date.UTC(y,m,0)).getUTCDate();c+=(mp[y*100+m]||0)/dim;o.push([d,c/tot*100,c])}return o};
+ const PP=run(P,d1),AA=A.length?run(A,am):null,RR=Rv.length?run(Rv,d1):null,mx=Math.max(PP[PP.length-1][1],AA?AA[AA.length-1][1]:0,RR?RR[RR.length-1][1]:0),fm=n=>n.toLocaleString('zh-TW',{maximumFractionDigits:1}),un=S.fu||'萬元';
+ const bk={},ad=(q,k)=>{(bk[q.y*100+q.m]=bk[q.y*100+q.m]||{y:q.y,m:q.m,p:0,q:0,r:0})[k]+=q.v};P.forEach(q=>ad(q,'p'));A.forEach(q=>ad(q,'q'));Rv.forEach(q=>ad(q,'r'));
+ const bars=Object.values(bk).map(o=>({a:U(o.y,o.m,1),b:U(o.y,o.m+1,1),p:o.p,q:o.q,r:o.r})),mxv=Math.max(...bars.map(o=>Math.max(o.p,o.q,o.r))),p10=Math.pow(10,Math.floor(Math.log10(mxv))),nn=mxv/p10,bm=(nn<=1?1:nn<=2?2:nn<=5?5:10)*p10;
+ return{d0,d1,P:PP,A:AA,R:RR,bars,bm,unit:un,cA:'#7b1fa2',cAf:'rgba(123,31,162,.35)',ym:Math.max(100,Math.ceil(mx/20)*20),stat:(i,pv,av,n)=>{const a=PP[i][2],c=AA?AA[Math.min(i,AA.length-1)][2]:null;return [['今日 '+fd(iso(n))+'　','#000'],['預定累計 '+fm(a)+un+'（'+pv.toFixed(1)+'%）','#1f5fbf']].concat(RR?[['　','#000'],['修正累計 '+fm(RR[i][2])+un+'（'+RR[i][1].toFixed(1)+'%）','#c26a00']]:[]).concat(c==null?[]:[['　','#000'],['實際累計 '+fm(c)+un+'（'+av.toFixed(1)+'%）','#7b1fa2']]).concat([['　預定總額 '+fm(tot)+un,'#000']])}}}
+const LK=(f,i)=>(S.lock&&(f=='s'||f=='e'))||(f=='s'&&S.t[i]&&S.t[i].pre)?' disabled':'';
+function lockUI(){const b=document.getElementById('lock');b.textContent=S.lock?'🔒 預定已鎖定':'🔓 鎖定預定';b.setAttribute('aria-pressed',String(!!S.lock));b.style.background=S.lock?'var(--ac)':'';b.style.color=S.lock?'var(--sf)':'';document.getElementById('add').disabled=!!S.lock;document.getElementById('impB').disabled=!!S.lock;document.body.classList.toggle('lk',!!S.lock)}
+const DCOL={'室內點交拆除':'#f48fb1','外牆切割打石(變使)':'#f48fb1','外牆裝修(變使)':'#14a7e0','景觀植栃優化':'#1aa35a','BF地坪油漆修整':'#c0641c','機空消配管':'#e62117'};
+let RV={};const nr=()=>1+(S.rv?1:0)+(S.act?1:0);
+function revAll(){const M={};const go=(t,g)=>{if(M[t.id])return M[t.id];if(g>200||!t.s||!t.e)return null;const p=t.pre?S.t.find(x=>x.id===t.pre):null;let s=pd(t.s);if(p){const q=go(p,g+1);if(q)s=q.e}
+ const d=dur(pd(t.s),pd(t.e));let e=(t.as&&t.ae)?pd(t.ae):endOf(s,d);if(e<s)s=e;return M[t.id]={s,e}};S.t.forEach(t=>go(t,0));return M}
+function totR(){const v=S.t.map(t=>RV[t.id]).filter(Boolean);return v.length?[Math.min(...v.map(q=>q.s)),Math.max(...v.map(q=>q.e))]:null}
+function rvRow(t,i){const q=RV[t.id];return `<div class="row rv"><span class="c k"></span><span class="c n"></span><span class="c ty"><i style="display:inline-block;width:12px;height:12px;background:#e08a00;vertical-align:-2px"></i> 修正</span><span class="c pr"></span><span class="c d">${q?dur(q.s,q.e):''}</span><span class="c dt" style="padding-left:10px">${q?fd(iso(q.s)):''}</span><span class="c dt" style="padding-left:10px">${q?fd(iso(q.e)):''}</span><span class="c x"></span></div>`}
+const uid=()=>Math.random().toString(36).slice(2,9);
+function dependsOn(p,t){let c=p,g=0;while(c&&c.pre&&g++<100){if(c.pre===t.id)return true;c=S.t.find(x=>x.id===c.pre)}return false}
+function preSel(t,i){const o=S.t.map((p,j)=>[p,j]).filter(([p,j])=>j!==i&&!dependsOn(p,t));return `<select data-i="${i}" data-f="pre" aria-label="前置工項"${S.lock?' disabled':''}><option value="">—</option>${o.map(([p,j])=>`<option value="${p.id}"${t.pre===p.id?' selected':''}>${j+1}</option>`).join('')}</select>`}
+function relink(){S.t.forEach(t=>{if(!t.id)t.id=uid();if(!t.c)t.c=DCOL[t.n]||'#8eaadb'});
+ for(let k=0;k<S.t.length+1;k++){let ch=false;S.t.forEach(t=>{if(!t.pre)return;const p=S.t.find(x=>x.id===t.pre);if(!p||p===t){t.pre='';return}if(!p.e||!t.s||!t.e)return;if(t.s!==p.e){const d=dur(pd(t.s),pd(t.e));t.s=p.e;t.e=iso(endOf(pd(t.s),d));ch=true}});if(!ch)break}}
+function setC(i,k,c){if(i=='T'){S[k=='a'?'ta':'tp']=c;return}if(i=='*'){S.t.forEach(t=>{t[k=='a'?'ac':'c']=c});S[k=='a'?'ga':'gp']=c}else S.t[+i][k=='a'?'ac':'c']=c}
+let GM=null;const HD='<i class="hd l" data-e="s"></i><i class="hd r" data-e="e"></i>';
+function invF(px){const{cs,nx,CW}=GM;let i=Math.floor(px/CW);i=Math.max(0,Math.min(cs.length-1,i));return cs[i]+(px-i*CW)/CW*(nx(cs[i])-cs[i])}
+function tot(){const p=S.t.filter(t=>t.s&&t.e),a=S.t.filter(t=>t.as&&t.ae);return{p:p.length?[Math.min(...p.map(t=>pd(t.s))),Math.max(...p.map(t=>pd(t.e)))]:null,a:a.length?[Math.min(...a.map(t=>pd(t.as))),Math.max(...a.map(t=>pd(t.ae)))]:null}}
+function totL(){const T=tot(),c=(q,k)=>`<span class="c pr"></span><span class="c d">${q?dur(q[0],q[1]):''}</span><span class="c dt">${q?fd(iso(q[0])):''}</span><span class="c dt">${q?fd(iso(q[1])):''}</span><span class="c x"></span>`;
+ return `<div class="row tot"><span class="mg${nr()>1?' m2':''}" style="--h:${nr()*38}px"><span class="mgi"><span class="c k"><button class="sw" data-sw="T" data-k="p" style="background:${S.tp||'#000000'}" aria-label="總工期預定顏色"></button></span><span class="c n">總工期</span></span></span>${nr()>1?'<span class="c ty">預定</span>':''}${c(T.p)}</div>`+(S.rv?`<div class="row tot"><span class="c k"></span><span class="c n"></span><span class="c ty">修正</span>${c(totR())}</div>`:'')+(S.act?`<div class="row tot"><span class="c k"></span><span class="c n"></span><span class="c ty"><button class="sw sm" data-sw="T" data-k="a" style="background:${S.ta||'#888888'}" aria-label="總工期實際顏色"></button> 實際</span>${c(T.a)}</div>`:'')}
+function actRow(t,i){const ok=t.as&&t.ae,v=ok?pd(t.ae)-pd(t.e):0,vt=ok?(v>0?'晚'+v+'天':v<0?'早'+(-v)+'天':'準時'):'';
+ return `<div class="row act"><span class="c k"></span><span class="c n"></span><span class="c ty"><button class="sw sm" data-sw="${i}" data-k="a" style="background:${t.ac||t.c}" aria-label="實際顏色"></button> 實際</span><span class="c pr"></span><span class="c d"><input type="number" min="0" style="width:56px" value="${ok?dur(pd(t.as),pd(t.ae)):''}" data-i="${i}" data-f="ad" aria-label="實際工期"></span><span class="c dt">${di(t.as,i,'as','實際開始')}</span><span class="c dt">${di(t.ae,i,'ae','實際完成')}</span><span class="c x"><button data-clr="${i}" aria-label="清除實際" title="清除實際">✕</button></span></div>`}
+function render(){
+ H=holSet();document.getElementById('pal')?.remove();relink();RV=revAll();
+ const L=document.getElementById('left');
+ let h='<div class="hr"><span class="c k"></span><span class="c n">工程項目</span>'+(nr()>1?'<span class="c ty">'+(S.rv&&S.act?'預定/修正/實際':S.rv?'預定/修正':'預定/實際')+'</span>':'')+'<span class="c pr">前置</span><span class="c d">工期</span><span class="c dt">開始</span><span class="c dt">完成</span><span class="c x"></span></div>';
+ h+=totL();
+ S.t.forEach((t,i)=>{h+=`<div class="row"><span class="mg${nr()>1?' m2':''}" style="--h:${nr()*38}px"><span class="mgi"><span class="c k"><button class="sw" data-sw="${i}" style="background:${t.c};color:${ink(t.c)}" aria-label="選擇顏色">${i+1}</button></span><span class="c n"><input style="width:174px" value="${t.n.replace(/"/g,'&quot;')}" data-i="${i}" data-f="n"${S.lock?' disabled':''}></span></span></span>${nr()>1?'<span class="c ty">預定</span>':''}<span class="c pr">${preSel(t,i)}</span><span class="c d"><input type="number" min="0" style="width:56px" value="${dur(pd(t.s),pd(t.e))}" data-i="${i}" data-f="d"${S.lock?' disabled':''}></span><span class="c dt">${di(t.s,i,'s','預定開始')}</span><span class="c dt">${di(t.e,i,'e','預定完成')}</span><span class="c x"><button data-del="${i}" aria-label="刪除"${S.lock?' disabled':''}>✕</button></span></div>`+(S.rv?rvRow(t,i):'')+(S.act?actRow(t,i):'')});
+ h+='<div class="row" style="justify-content:flex-end;color:#c0392b;font-weight:700;padding-right:8px">人力配置</div>';
+ const FUL=(S.fu||'萬元').replace(/[<>&"]/g,'');h+='<div class="row fpi" style="justify-content:flex-end;padding-right:8px">資金預估（'+FUL+'）</div>';if(S.rv)h+='<div class="row frv" style="justify-content:flex-end;padding-right:8px">資金預估修正（'+FUL+'）</div>';if(S.act)h+='<div class="row fai" style="justify-content:flex-end;padding-right:8px">資金實際（'+FUL+'）</div>';
+ L.innerHTML=h;
+ // gantt
+ if(!S.t.length){document.getElementById('gantt').innerHTML='';return}
+ const pmn=Math.min(...S.t.map(t=>pd(t.s))),pmx=Math.max(...S.t.map(t=>pd(t.e)));
+ const ac=S.act?S.t.filter(t=>t.as&&t.ae):[];
+ const mn=Math.min(pmn,...ac.map(t=>pd(t.as))),mx=Math.max(pmx,...ac.map(t=>pd(t.ae)));
+ const sc=S.scale||'month',CW={day:28,week:64,biweek:84,month:84,quarter:104}[sc];
+ const a=new Date(mn*DAY);let c0;
+ if(sc=='day')c0=mn;else if(sc=='week'||sc=='biweek')c0=mn-((dow(mn)+6)%7);else if(sc=='month')c0=U(a.getUTCFullYear(),a.getUTCMonth()+1,1);else c0=U(a.getUTCFullYear(),Math.floor(a.getUTCMonth()/3)*3+1,1);
+ const nx=n=>{if(sc=='day')return n+1;if(sc=='week')return n+7;if(sc=='biweek')return n+14;const d=new Date(n*DAY);return U(d.getUTCFullYear(),d.getUTCMonth()+1+(sc=='month'?1:3),1)};
+ const cs=[];for(let n=c0;n<=mx;n=nx(n))cs.push(n);for(let q=0;q<{day:14,week:3,biweek:2,month:2,quarter:1}[sc];q++)cs.push(nx(cs.at(-1)));
+ const lab=n=>{const d=new Date(n*DAY),y=d.getUTCFullYear(),m=d.getUTCMonth()+1,dd=d.getUTCDate();if(sc=='month')return m+'月';if(sc=='quarter')return '第'+Math.ceil(m/3)+'季';if(sc=='day')return dd==1||n==cs[0]?m+'/'+dd:dd;return m+'/'+dd};
+ const W=cs.length*CW,x0=c0;GM={cs,nx,CW,xOf:null,lab,mn,mx,c0,sc};
+ const xOf=n=>{if(n<cs[0])return 0;let i=cs.length-1;for(let k=0;k<cs.length;k++)if(n<nx(cs[k])){i=k;break}return i*CW+Math.min(1,(n-cs[i])/(nx(cs[i])-cs[i]))*CW};
+ let g=yrRow()+`<div class="mh" style="width:${W}px">`+cs.map(n=>`<div style="width:${CW}px;font-size:${sc=='day'?12:14}px">${lab(n)}</div>`).join('')+'</div>';
+ let hl='';const end0=nx(cs.at(-1)),sh=(d,c)=>`<div class="hl ${c}" style="left:${xOf(d)}px;width:${Math.max(xOf(d+1)-xOf(d),1)}px"></div>`;
+ if(S.rest>0&&(sc=='day'||sc=='week'||sc=='biweek'))for(let d=x0;d<end0;d++)if(isRest(d)&&!H.has(d))hl+=sh(d,'rs');
+ H.forEach(d=>{if(d>=x0&&d<end0)hl+=sh(d,'')});
+ {const T=tot(),tr=(q,cc,cl)=>`<div class="gr tot" style="width:${W}px;background-size:${CW}px 100%">${hl}${q?`<div class="bar-t tot ${cl}" title="總工期 ${fd(iso(q[0]))} → ${fd(iso(q[1]))}" style="left:${xOf(q[0])}px;width:${Math.max(xOf(q[1]+1)-xOf(q[0]),3)}px;background-color:${cc}"></div>`:''}</div>`;g+=tr(T.p,S.tp||'#000000','');if(S.rv)g+=tr(totR(),'#e08a00','');if(S.act)g+=tr(T.a,S.ta||'#888888','a')}
+ S.t.forEach((t,ti)=>{const l=xOf(pd(t.s)),r=xOf(pd(t.e)+1);g+=`<div class="gr" style="width:${W}px;background-size:${CW}px 100%">${hl}<div class="bar-t${t.pre?' lnk':''}" data-bi="${ti}" data-bk="p" title="${t.n} ${fd(t.s)} → ${fd(t.e)}" style="left:${l}px;width:${Math.max(r-l,3)}px;background:${t.c}">${HD}</div></div>`;if(S.rv){const q=RV[t.id];let b='';if(q){const l3=xOf(q.s),r3=xOf(q.e+1),v=q.e-pd(t.e);b=`<div class="bar-t rvb" title="修正預定 ${fd(iso(q.s))} → ${fd(iso(q.e))}" style="left:${l3}px;width:${Math.max(r3-l3,3)}px;background-color:#e08a00"></div><span class="vl" style="left:${r3+4}px;color:${v>0?'#c0392b':'#1a8f55'}">${v>0?'晚'+v+'天':v<0?'早'+(-v)+'天':'準時'}</span>`}g+=`<div class="gr rv" style="width:${W}px;background-size:${CW}px 100%">${hl}${b}</div>`}if(S.act){let b='';if(t.as&&t.ae){const l2=xOf(pd(t.as)),r2=xOf(pd(t.ae)+1);b=`<div class="bar-t a" data-bi="${ti}" data-bk="a" title="實際 ${fd(t.as)} → ${fd(t.ae)}" style="left:${l2}px;width:${Math.max(r2-l2,3)}px;background-color:${t.ac||t.c}">${HD}</div>`;const v=pd(t.ae)-pd(t.e);b+=`<span class="vl" style="left:${r2+4}px;color:${v>0?'#c0392b':'#1a8f55'}">${v>0?'晚'+v+'天':v<0?'早'+(-v)+'天':'準時'}</span>`}g+=`<div class="gr act" style="width:${W}px;background-size:${CW}px 100%">${hl}${b}</div>`}});
+ g+=`<div class="man" style="position:relative;width:${W}px;height:${RH}px">`+(()=>{let s='',d0=new Date(mn*DAY),y=d0.getUTCFullYear(),m=d0.getUTCMonth()+1;while(U(y,m,1)<=mx){const l=xOf(Math.max(U(y,m,1),c0)),r=xOf(U(y,m+1,1)),k=y+'-'+m;s+=`<div style="position:absolute;left:${l}px;width:${r-l}px;top:0;bottom:0;display:flex;align-items:center"><input type="number" min="0" style="width:100%;min-width:0;padding:0" data-man="${k}" value="${S.man[k]??''}" aria-label="${y}/${m} 人力"></div>`;if(++m>12){m=1;y++}}return s})()+'</div>';
+ cnyR().forEach(([a,b])=>{if(b>=cs[0]&&a<nx(cs.at(-1)))g+=`<div class="cny" style="left:${(xOf(a)+xOf(b+1))/2}px">春節</div>`});
+ {const d0=new Date(),n=U(d0.getFullYear(),d0.getMonth()+1,d0.getDate());if(S.td!==false&&n>=cs[0]&&n<nx(cs.at(-1)))g+=`<div class="today" style="left:${(xOf(n)+xOf(n+1))/2}px" title="今日 ${fd(iso(n))}"><span>今日</span></div>`}
+ const fr2=(mp,key)=>`<div class="man" style="position:relative;width:${W}px;height:${RH}px">`+(()=>{let s='',d0=new Date(mn*DAY),y=d0.getUTCFullYear(),m=d0.getUTCMonth()+1;const e1=nx(cs.at(-1));while(U(y,m,1)<e1){const l=xOf(Math.max(U(y,m,1),c0)),r=xOf(U(y,m+1,1)),k=y+'-'+m;s+=`<div style="position:absolute;left:${l}px;width:${r-l}px;top:0;bottom:0;display:flex;align-items:center"><input class="${key=='p'?'fpi':key=='r'?'frv':'fai'}" type="number" min="0" style="width:100%;min-width:0;padding:0;text-align:center" data-fm="${key}:${k}" value="${mp[k]??''}" aria-label="${y}/${m} 資金"${key=='p'&&S.lock?' disabled':''}></div>`;if(++m>12){m=1;y++}}return s})()+'</div>';
+ g+=fr2(S.fp||{},'p');if(S.rv)g+=fr2(S.fr||{},'r');if(S.act)g+=fr2(S.fa||{},'a');
+ document.getElementById('gantt').style.width=W+'px';GM.xOf=xOf;document.getElementById('gantt').innerHTML=g;
+ const total=dur(pmn,pmx);
+ document.getElementById('sum').innerHTML=`總工期 <b>${total}</b> ${S.mode=='cal'?'日曆天':'工作天（'+RN[S.rest]+'）'}　${fd(iso(pmn))} → ${fd(iso(pmx))}<span class="lg"><i style="background:var(--ln)"></i>週休<i style="background:var(--hol)"></i>休假日${S.act?'<i style="background:repeating-linear-gradient(45deg,#777 0 3px,#ddd 3px 6px)"></i>實際':''}</span>`;
+ document.getElementById('mCal').className=S.mode=='cal'?'on':'';document.getElementById('mWork').className=S.mode=='work'?'on':'';document.getElementById('gP').style.background=S.gp||'#8eaadb';document.getElementById('gA').style.background=S.ga||'#999';document.getElementById('gAw').style.display=S.act?'':'none';lockUI();renderTabs();document.body.classList.toggle('tw3',!!(S.rv&&S.act));drawSC();
+ save();
+}
+document.addEventListener('focusin',e=>{if(e.target.type=='number')try{e.target.select()}catch(_){}});
+document.addEventListener('change',e=>{
+ const el=e.target;
+ if(S.lock&&(['s','e','d','pre','n'].includes(el.dataset.f)||(el.dataset.fm||'').startsWith('p:'))){render();return}
+ if(el.dataset.fm){const q=el.dataset.fm.split(':'),mp=q[0]=='p'?(S.fp=S.fp||{}):q[0]=='r'?(S.fr=S.fr||{}):(S.fa=S.fa||{});mp[q[1]]=el.value;save();drawSC();return}
+ if(el.dataset.g){const gg=el.dataset.g;if(gg[0]=='T')setC('T',gg[1],el.value);else setC('*',gg,el.value);render();return}
+ if(el.dataset.man){S.man[el.dataset.man]=el.value;save();return}
+ if(el.dataset.f){const t=S.t[+el.dataset.i],f=el.dataset.f;
+  if(el.type=='text'&&/^(s|e|as|ae)$/.test(f)){const q=el.value.trim()?parseD(el.value):'';if(q===null){render();return}el.value=q}
+  if(f=='ad'){if(el.value!==''){if(!t.as)t.as=t.s;t.ae=iso(endOf(pd(t.as),Math.max(0,Math.round(+el.value)||0)))}}
+  else if(f=='as'){const k=t.as&&t.ae?dur(pd(t.as),pd(t.ae)):0;t.as=el.value;if(!el.value)t.ae='';else if(k)t.ae=iso(endOf(pd(t.as),k));else if(!t.ae)t.ae=t.as}
+  else if(f=='ae')t.ae=el.value;
+  else if(f=='d'){if(el.value!=='')t.e=iso(endOf(pd(t.s),Math.max(0,Math.round(+el.value)||0)))}
+  else if(f=='s'){const d=dur(pd(t.s),pd(t.e));t.s=el.value;if(el.value)t.e=iso(endOf(pd(t.s),d))}
+  else t[f]=el.value;
+  render()}
+});
+document.addEventListener('click',e=>{
+ const tg=e.target,d=tg.dataset.del;
+ if(tg.type=='date'&&tg.closest('.cal')){try{tg.showPicker()}catch(_){}}
+ if(tg.dataset.pc){setC(tg.dataset.pi,tg.dataset.pk,tg.dataset.pc);render();return}
+ const old=document.getElementById('pal');if(old&&!old.contains(tg))old.remove();
+ if(tg.dataset.sw!==undefined){if(old&&old.dataset.i===tg.dataset.sw+(tg.dataset.k||'p'))return;const i=tg.dataset.sw,kk=tg.dataset.k||'p',r=tg.getBoundingClientRect(),p=document.createElement('div');p.id='pal';p.dataset.i=i+kk;
+  p.style.left=Math.min(r.left,innerWidth-200)+'px';p.style.top=(r.bottom+4)+'px';
+  p.innerHTML=['#f48fb1','#e62117','#c0641c','#f5a623','#f2d00f','#1aa35a','#14a7e0','#8eaadb','#3f51b5','#8e5bd0','#7f8c8d','#2c3e50'].map(c=>`<button data-pc="${c}" data-pi="${i}" data-pk="${kk}" style="background:${c}" aria-label="${c}"></button>`).join('')+`<label class="cu">自訂 <input type="color" value="${i=='T'?(kk=='a'?S.ta||'#888888':S.tp||'#000000'):i=='*'?(kk=='a'?S.ga:S.gp)||'#8eaadb':(kk=='a'?S.t[+i].ac||S.t[+i].c:S.t[+i].c)}" data-i="${i}" data-f="${kk=='a'?'ac':'c'}" data-g="${i=='*'?kk:i=='T'?'T'+kk:''}"></label>`;
+  document.body.appendChild(p);return}
+ if(tg.dataset.clr!==undefined){const t=S.t[+tg.dataset.clr];t.as='';t.ae='';render();return}
+ if(d!==undefined){S.t.splice(+d,1);render()}
+});
+document.getElementById('mCal').onclick=()=>{S.mode='cal';render()};
+document.getElementById('mWork').onclick=()=>{S.mode='work';render()};
+const rest=document.getElementById('rest'),incl=document.getElementById('incl'),hol=document.getElementById('hol');
+rest.value=S.rest;incl.checked=S.incl;if(S.hol==='2027/2/5-2027/2/10')S.hol='';hol.value=S.hol;
+const cny0=document.getElementById('cny'),cnyd=document.getElementById('cnyd');cny0.checked=S.cny!==false;cnyd.value=S.cnyd||5;cny0.onchange=()=>{S.cny=cny0.checked;render()};cnyd.onchange=()=>{S.cnyd=Math.max(1,Math.min(9,+cnyd.value||5));render()};
+const ttl=document.getElementById('ttl'),act=document.getElementById('act');
+const yr=document.getElementById('yr');yr.value=S.roc===false?'0':'1';yr.onchange=()=>{S.roc=yr.value=='1';render()};
+const fu=document.getElementById('fu');document.getElementById('lock').onclick=()=>{S.lock=!S.lock;render()};S.fp=S.fp||{};S.fa=S.fa||{};fu.value=S.fu||'萬元';fu.onchange=()=>{S.fu=fu.value.trim()||'萬元';render()};
+ttl.value=S.title??'XXXX工程進度表';document.title=ttl.value||'XXXX工程進度表';
+ttl.onchange=()=>{S.title=ttl.value;document.title=ttl.value||'XXXX工程進度表';save();renderTabs()};
+ttl.addEventListener('input',()=>{S.title=ttl.value;renderTabs()});
+act.checked=!!S.act;act.onchange=()=>{S.act=act.checked;render()};
+const rvc=document.getElementById('rv');rvc.checked=!!S.rv;rvc.onchange=()=>{S.rv=rvc.checked;render()};
+const td=document.getElementById('td');td.checked=S.td!==false;td.onchange=()=>{S.td=td.checked;render()};
+const scx=document.getElementById('scx');scx.checked=S.scv!==false;scx.onchange=()=>{S.scv=scx.checked;render()};addEventListener('resize',drawSC);
+{const R1=document.querySelector('.right'),LL=[document.getElementById('scr'),document.getElementById('scr2')];R1.addEventListener('scroll',()=>LL.forEach(e=>{e.scrollLeft=R1.scrollLeft}));LL.forEach(e=>e.addEventListener('scroll',()=>{R1.scrollLeft=e.scrollLeft;LL.forEach(o=>{o.scrollLeft=e.scrollLeft})}))}
+const scale=document.getElementById('scale');scale.value=S.scale||'month';scale.onchange=()=>{S.scale=scale.value;render()};
+rest.onchange=()=>{S.rest=+rest.value;if(S.mode=='cal'){S.mode='work';say('已切換為工作天模式，工期依週休重新計算')}render()};
+incl.onchange=()=>{S.incl=incl.checked;render()};
+hol.onchange=()=>{S.hol=hol.value;render()};
+let armDel=-1;
+function syncUI(){if(S.hol==='2027/2/5-2027/2/10')S.hol='';S.fp=S.fp||{};S.fa=S.fa||{};S.fr=S.fr||{};S.man=S.man||{};
+ rest.value=S.rest;incl.checked=!!S.incl;hol.value=S.hol||'';cny0.checked=S.cny!==false;cnyd.value=S.cnyd||5;yr.value=S.roc===false?'0':'1';fu.value=S.fu||'萬元';
+ ttl.value=S.title??'XXXX工程進度表';document.title=ttl.value||'XXXX工程進度表';act.checked=!!S.act;rvc.checked=!!S.rv;td.checked=S.td!==false;scx.checked=S.scv!==false;scale.value=S.scale||'month'}
+function blankProj(){const d=new Date(),n=U(d.getFullYear(),d.getMonth()+1,d.getDate()),b={mode:'cal',rest:2,incl:false,hol:'',man:{},fp:{},fa:{},fr:{},title:'新案件 '+(PROJ.list.length+1),t:[T('新項目',iso(n),iso(n+14),'#8eaadb')]};
+ ['mode','rest','incl','cny','cnyd','roc','fu','scale','td','scv','act','rv','hol'].forEach(k=>{if(S[k]!==undefined)b[k]=S[k]});return b}
+function gotoProj(i){PROJ.cur=i;S=PROJ.list[i];armDel=-1;syncUI();const r=document.querySelector('.right');if(r)r.scrollLeft=0;render()}
+function addProj(){save();PROJ.list.push(blankProj());gotoProj(PROJ.list.length-1);ttl.focus();ttl.select()}
+function dupProj(){save();const c=JSON.parse(JSON.stringify(S));c.title=(S.title||'XXXX工程進度表')+' 複本';c.lock=false;PROJ.list.splice(PROJ.cur+1,0,c);gotoProj(PROJ.cur+1)}
+function delProj(i){PROJ.list.splice(i,1);gotoProj(Math.min(i,PROJ.list.length-1))}
+function renderTabs(){const el=document.getElementById('tabs');if(!el)return;
+ const esc=q=>String(q).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+ el.innerHTML=PROJ.list.map((p,i)=>{const on=i===PROJ.cur,nm=esc(p.title||'XXXX工程進度表');return `<span class="tabw${on?' on':''}"><button class="tab" role="tab" aria-selected="${on}" data-tab="${i}" title="${nm}">${nm}</button>${on&&PROJ.list.length>1?`<button class="tclose" data-tdel="${i}" aria-label="刪除此案件">${armDel===i?'確定刪除？':'✕'}</button>`:''}</span>`}).join('')+'<button class="tab tplus" id="tadd">＋ 新增案件</button><button class="tab tplus" id="tdup">複製此案件</button>'}
+document.getElementById('tabs').addEventListener('click',e=>{const t=e.target.closest('[data-tab]'),d=e.target.closest('[data-tdel]');
+ if(d){const i=+d.dataset.tdel;if(armDel===i)delProj(i);else{armDel=i;renderTabs()}return}
+ if(e.target.closest('#tadd')){addProj();return}if(e.target.closest('#tdup')){dupProj();return}
+ if(t){const i=+t.dataset.tab;if(i===PROJ.cur){armDel=-1;renderTabs();return}save();gotoProj(i)}});
+document.getElementById('add').onclick=()=>{const pv=S.t.at(-1),last=pv?pd(pv.e):U(2026,9,8),nt=T('新項目',iso(pv?last:last+1),iso(last+(pv?14:15)),'#8eaadb');if(pv){if(!pv.id)pv.id=uid();nt.pre=pv.id}S.t.push(nt);render()};
+document.getElementById('csv').onclick=()=>{
+ const rows=[['工程項目','工期('+(S.mode=='cal'?'日曆天':'工作天')+')','開始','完成']].concat(S.t.map(t=>[t.n,dur(pd(t.s),pd(t.e)),t.s,t.e]));
+ const txt='\ufeff'+rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
+ saveFile('進度表.csv',txt)};
+let mt;const say=t=>{const m=document.getElementById('msg');m.textContent=t;clearTimeout(mt);mt=setTimeout(()=>m.textContent='',6000)};
+const MT={pdf:'application/pdf',png:'image/png',csv:'text/csv;charset=utf-8',xlsx:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'};
+async function saveFile(name,data,prev){
+ let d=null;try{d=window.claude?await claude.use('downloads'):null}catch(_){}
+ if(d){try{await d.save({filename:name,data:data instanceof ArrayBuffer?data.slice(0):data});say('已儲存 '+name);return}catch(e){if(e&&(e.code=='declined'||e.code=='rate_limited')){say(e.code=='declined'?'已取消':'請稍後再試');return}}}
+ await alt(name,data,prev)}
+async function alt(name,data,prev){
+ const mt=MT[name.split('.').pop()]||'application/octet-stream',blob=data instanceof Blob?data:new Blob([data],{type:mt});
+ const url=URL.createObjectURL(blob);
+ if(!window.claude){const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);say('已下載 '+name);return}
+ const o=document.createElement('div');
+ o.style.cssText='position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:16px';
+ o.innerHTML=`<div style="background:var(--sf);color:var(--tx);border-radius:8px;padding:16px;max-width:min(92vw,900px);max-height:90vh;overflow:auto"><p style="margin:0 0 8px;font-weight:700">此檢視環境不支援直接下載，可改用下列方式：</p><p style="margin:0 0 8px;line-height:1.7">① <a href="${url}" download="${name}" target="_blank" rel="noopener" style="color:var(--ac)">點此嘗試下載 ${name}</a><br>② 在 claude.ai 的產物頁面（獨立分頁）開啟這份工具後再匯出${prev?'<br>③ 長按（手機）或按右鍵（電腦）下圖，另存圖片或列印':''}</p>${prev?`<img src="${prev}" style="max-width:100%;border:1px solid var(--ln)" alt="預覽">`:''}<p style="text-align:right;margin:8px 0 0"><button class="b">關閉</button></p></div>`;
+ o.querySelector('button').onclick=()=>o.remove();o.onclick=e=>{if(e.target==o)o.remove()};document.body.appendChild(o)}
+const RN={2:'週休二日',1:'週休一日(日)',0:'無週休'};
+document.getElementById('xls').onclick=()=>{
+ if(typeof XLSX==='undefined'){say('XLSX 元件載入失敗');return}
+ H=holSet();const m=S.mode;
+ const rows=S.t.map(t=>{const s=pd(t.s),e=pd(t.e);S.mode='cal';const c=dur(s,e);S.mode='work';const k=dur(s,e);S.mode=m;return {'工程項目':t.n,'日曆天':c,'工作天':k,'開始':t.s,'完成':t.e,'實際開始':t.as||'','實際完成':t.ae||'','顏色':t.c,'實際顏色':t.ac||'','前置':(()=>{const p=S.t.find(z=>z.id===t.pre);return p?S.t.indexOf(p)+1:''})()}});
+ const man=Object.keys(S.man).filter(k=>S.man[k]!=='').sort((a,b)=>{const[x,y]=a.split('-').map(Number),[p,q]=b.split('-').map(Number);return x*100+y-p*100-q}).map(k=>({'月份':k,'人力':Number(S.man[k])}));
+ const set=[{'項目':'計算方式','值':m=='cal'?'日曆天':'工作天'},{'項目':'週休','值':RN[S.rest]},{'項目':'起日計入工期','值':S.incl?'是':'否'},{'項目':'休假日','值':S.hol.split('\n').join(';')},{'項目':'資金單位','值':S.fu||'萬元'},{'項目':'農曆春節','值':S.cny===false?'否':'是'},{'項目':'春節至初','值':S.cnyd||5},{'項目':'專案名稱','值':S.title??'XXXX工程進度表'},{'項目':'顯示實際','值':S.act?'是':'否'}];
+ const w=XLSX.utils.book_new(),a=XLSX.utils.json_to_sheet(rows);a['!cols']=[{wch:24},{wch:8},{wch:8},{wch:12},{wch:12},{wch:12},{wch:12},{wch:10},{wch:10}];
+ XLSX.utils.book_append_sheet(w,a,'進度表');XLSX.utils.book_append_sheet(w,XLSX.utils.json_to_sheet(man),'人力配置');{const ks=[...new Set([...Object.keys(S.fp||{}),...Object.keys(S.fa||{}),...Object.keys(S.fr||{})])].sort((a,b)=>{const[x,y]=a.split('-').map(Number),[p,q]=b.split('-').map(Number);return x*100+y-p*100-q});XLSX.utils.book_append_sheet(w,XLSX.utils.json_to_sheet(ks.map(k=>({'月份':k,'預估':(S.fp||{})[k]??'','實際':(S.fa||{})[k]??'','修正':(S.fr||{})[k]??''}))),'資金')}
+ XLSX.utils.book_append_sheet(w,XLSX.utils.json_to_sheet(set),'設定');
+ saveFile('進度表.xlsx',XLSX.write(w,{bookType:'xlsx',type:'array'}))};
+document.getElementById('impB').onclick=()=>{if(S.lock){say('預定已鎖定，無法匯入');return}document.getElementById('imp').click()};
+document.getElementById('imp').onchange=e=>{
+ const f=e.target.files[0];e.target.value='';if(!f)return;
+ if(typeof XLSX==='undefined'){say('XLSX 元件載入失敗');return}
+ const r=new FileReader();r.onload=()=>{try{
+  const w=XLSX.read(r.result,{type:'array'}),sh=w.Sheets['進度表']||w.Sheets[w.SheetNames[0]];
+  const tn=v=>{if(typeof v==='number')return Math.floor(v)-25569;const q=String(v).match(/(\d{2,4})\D+(\d{1,2})\D+(\d{1,2})/);return q?U(+q[1]<1900?+q[1]+1911:+q[1],+q[2],+q[3]):NaN};
+  const t=[];XLSX.utils.sheet_to_json(sh,{raw:true,defval:''}).forEach(x=>{const s=tn(x['開始']),en=tn(x['完成']);if(!x['工程項目']||isNaN(s)||isNaN(en))return;const sa=tn(x['實際開始']),ea=tn(x['實際完成']),ok=!isNaN(sa)&&!isNaN(ea);t.push({n:String(x['工程項目']),s:iso(s),e:iso(Math.max(s,en)),as:ok?iso(sa):'',ae:ok?iso(Math.max(sa,ea)):'',c:/^#[0-9a-f]{6}$/i.test(x['顏色'])?x['顏色']:'#8eaadb',ac:/^#[0-9a-f]{6}$/i.test(x['實際顏色'])?x['實際顏色']:'',pn:+x['前置']||0})});
+  if(!t.length){say('找不到資料：需要「工程項目、開始、完成」欄位');return}
+  t.forEach(z=>{z.id=uid()});t.forEach(z=>{if(z.pn&&t[z.pn-1]&&t[z.pn-1]!==z)z.pre=t[z.pn-1].id;delete z.pn});S.t=t;
+  if(w.Sheets['人力配置']){const mm={};XLSX.utils.sheet_to_json(w.Sheets['人力配置']).forEach(x=>{const q=String(x['月份']).match(/(\d{4})\D+(\d{1,2})/);if(q)mm[q[1]+'-'+(+q[2])]=x['人力']});S.man=mm}
+  if(w.Sheets['資金']){const fp={},fa={},fr={};XLSX.utils.sheet_to_json(w.Sheets['資金']).forEach(x=>{const q=String(x['月份']).match(/(\d{4})\D+(\d{1,2})/);if(q){const k=q[1]+'-'+(+q[2]);if(x['預估']!=='')fp[k]=x['預估'];if(x['實際']!=='')fa[k]=x['實際'];if(x['修正']!==''&&x['修正']!=null)fr[k]=x['修正']}});S.fp=fp;S.fa=fa;S.fr=fr}
+  if(w.Sheets['設定']){XLSX.utils.sheet_to_json(w.Sheets['設定']).forEach(x=>{const k=x['項目'],v=String(x['值']);if(k=='計算方式')S.mode=v=='工作天'?'work':'cal';else if(k=='週休'){const z=Object.keys(RN).find(i=>RN[i]==v);if(z!==undefined)S.rest=+z}else if(k=='起日計入工期')S.incl=v=='是';else if(k=='休假日')S.hol=v.split(';').join('\n');else if(k=='專案名稱')S.title=v;else if(k=='資金單位')S.fu=v;else if(k=='農曆春節')S.cny=v!='否';else if(k=='春節至初')S.cnyd=+v||5;else if(k=='顯示實際')S.act=v=='是'});rest.value=S.rest;incl.checked=S.incl;hol.value=S.hol;ttl.value=S.title??'XXXX工程進度表';document.title=ttl.value||'XXXX工程進度表';act.checked=!!S.act;cny0.checked=S.cny!==false;cnyd.value=S.cnyd||5;fu.value=S.fu||'萬元'}
+  render();say('已匯入 '+t.length+' 個項目')
+ }catch(err){say('匯入失敗：檔案格式無法讀取')}};
+ r.readAsArrayBuffer(f)};
+document.getElementById('pdf').onclick=async()=>{
+ if(typeof html2canvas==='undefined'||!window.jspdf){say('PDF 元件載入失敗');return}
+ say('產生 PDF 中…');
+ try{
+  const src=document.querySelector('.main'),L=document.getElementById('left'),G=document.getElementById('gantt');
+  const w=L.offsetWidth+G.offsetWidth+4,h=Math.max(L.offsetHeight,G.offsetHeight)+4;
+  const c=await html2canvas(src,{scale:2,backgroundColor:'#ffffff',width:w,height:h,windowWidth:w+80,windowHeight:h+80,onclone:d=>{
+   const m=d.querySelector('.main');m.style.cssText+=';overflow:visible;width:max-content;border-radius:0';
+   d.querySelector('.right').style.overflow='visible';
+   d.documentElement.style.cssText+=';--bg:#fff;--sf:#fff;--tx:#1d2a24;--mu:#6b7a72;--ln:#d5dcd7;--ac:#1f6f5c;--hd:#dbe9e2;--wk:#eef0ee;--hol:#fbe3df;--tb:#d6e9fa;color-scheme:light'}});
+  const T=S.title||'XXXX工程進度表',k=2,hh=56*k,c2=document.createElement('canvas');c2.width=c.width;c2.height=c.height+hh;
+  const x=c2.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c2.width,c2.height);x.fillStyle='#1d2a24';
+  x.font='bold '+22*k+'px "Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif';x.textBaseline='middle';x.fillText(T,8*k,28*k);x.drawImage(c,0,hh);
+  const psz=document.getElementById('psz').value,por=document.getElementById('por').value,D=psz=='a3'?[420,297]:[297,210],PW=por=='landscape'?D[0]:D[1],PH=por=='landscape'?D[1]:D[0];
+  const{jsPDF}=window.jspdf,pdf=new jsPDF({orientation:por,unit:'mm',format:psz});
+  const sc=Math.min((PW-16)/c2.width,(PH-16)/c2.height);
+  pdf.addImage(c2.toDataURL('image/png'),'PNG',8,8,c2.width*sc,c2.height*sc);
+  await saveFile((T.replace(/[\\/:*?"<>|]/g,'')||'進度表')+'.pdf',pdf.output('arraybuffer'))
+ }catch(err){say('PDF 產生失敗')}};
+document.addEventListener('pointerdown',e=>{
+ const h=e.target.closest&&e.target.closest('.hd');if(!h||!GM||!GM.xOf)return;if(S.lock&&h.parentElement.dataset.bk=='p'){say('預定（工期／資金）已鎖定，請先解除鎖定');return}
+ if(h.parentElement.dataset.bk=='p'&&h.dataset.e=='s'&&S.t[+h.parentElement.dataset.bi].pre){say('此項目已關聯前置工項，開始日跟隨前置完成日');return}
+ e.preventDefault();
+ const bar=h.parentElement,t=S.t[+bar.dataset.bi],k=bar.dataset.bk,side=h.dataset.e,fs=k=='p'?'s':'as',fe=k=='p'?'e':'ae',g=document.getElementById('gantt'),X=GM.xOf;
+ let s=pd(t[fs]),en=pd(t[fe]);
+ try{h.setPointerCapture(e.pointerId)}catch(_){}
+ const tip=document.createElement('div');tip.id='dtip';document.body.appendChild(tip);
+ const mv=ev=>{const d=invF(ev.clientX-g.getBoundingClientRect().left);
+  if(side=='s')s=Math.min(Math.round(d),en);else en=Math.max(Math.round(d)-1,s);
+  const l=X(s),r=X(en+1);bar.style.left=l+'px';bar.style.width=Math.max(r-l,3)+'px';
+  tip.textContent=fd(iso(s))+' → '+fd(iso(en))+'　'+dur(s,en)+(S.mode=='cal'?' 日曆天':' 工作天');
+  tip.style.left=Math.min(ev.clientX+12,innerWidth-220)+'px';tip.style.top=Math.max(ev.clientY-34,4)+'px'};
+ const up=()=>{h.removeEventListener('pointermove',mv);h.removeEventListener('pointerup',up);h.removeEventListener('pointercancel',up);tip.remove();t[fs]=iso(s);t[fe]=iso(en);render()};
+ h.addEventListener('pointermove',mv);h.addEventListener('pointerup',up);h.addEventListener('pointercancel',up)});
+function buildCanvas(k){
+ const g=GM,RH=38,HH=40,TH=64,wSw=26,wN=340,wT=(S.act||S.rv)?124:0,wP=84,wD=92,wS=172,wE=172,xN=wSw,xT=xN+wN,xP=xT+wT,xD=xP+wP,xS=xD+wD,xE=xS+wS,LW=xE+wE,GW=g.cs.length*g.CW,X0=LW;
+ const LN='#d5dcd7',F='"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif',T=tot(),R=[];
+ const NR=nr(),MULTI=NR>1;R.push({k:'tp'});if(S.rv)R.push({k:'tr'});if(S.act)R.push({k:'ta'});
+ S.t.forEach((t,i)=>{R.push({k:'p',t,i});if(S.rv)R.push({k:'r',t});if(S.act)R.push({k:'a',t})});
+ const Wt=LW+GW+1,yR=TH+2*HH,yE=yR+R.length*RH,Ht=yE+RH*(2+(S.rv?1:0)+(S.act?1:0))+1,SH=S.scv!==false?1480:0,e0=g.nx(g.cs[g.cs.length-1]);
+ const c=document.createElement('canvas');c.width=Math.ceil(Wt*k);c.height=Math.ceil((Ht+SH)*k);
+ const x=c.getContext('2d');x.scale(k,k);x.fillStyle='#fff';x.fillRect(0,0,Wt,Ht+SH);x.textBaseline='middle';
+ const tx=(s,px,py,o)=>{o=o||{};x.font=Math.round((o.z||14)*1.9)+'px '+F;x.fillStyle=o.c||'#000';x.textAlign=o.a||'left';x.fillText(s,px,py)};
+ const fr=(a,b,w,h,col,al)=>{x.globalAlpha=al==null?1:al;x.fillStyle=col;x.fillRect(a,b,w,h);x.globalAlpha=1};
+ tx(S.title||'XXXX工程進度表',8,TH/2,{b:1,z:22});
+ fr(0,TH,Wt,2*HH,'#dbe9e2');const hm=TH+HH;
+ tx('工程項目',xN+4,hm,{b:1});if(MULTI)tx(S.rv&&S.act?'預定/修正/實際':S.rv?'預定/修正':'預定/實際',xT+4,hm,{b:1,z:13});tx('前置',xP+wP/2,hm,{b:1,a:'center'});tx('工期',xD+wD-6,hm,{b:1,a:'right'});tx('開始',xS+6,hm,{b:1});tx('完成',xE+6,hm,{b:1});
+ g.cs.forEach((n,i)=>tx(g.lab(n),X0+i*g.CW+g.CW/2,TH+HH*1.5,{b:1,a:'center',z:g.sc=='day'?8:14}));
+ {let i=0;while(i<g.cs.length){const y=new Date(g.cs[i]*DAY).getUTCFullYear();let j=i;while(j<g.cs.length&&new Date(g.cs[j]*DAY).getUTCFullYear()==y)j++;tx((S.roc!==false?y-1911:y)+'年',X0+(i+j)/2*g.CW,TH+HH/2,{b:1,a:'center'});fr(X0+i*g.CW,TH,1,HH,LN);i=j}}
+ fr(X0,TH+HH,GW,1,LN);
+ R.forEach((r,i)=>{const y=yR+i*RH,blue=r.k[0]=='t',a0=(r.k=='a'||r.k=='r')?xT:0;
+  fr(a0,y,Wt-a0,RH,blue?'#d6e9fa':r.k=='a'?'#eef0ee':r.k=='r'?'#fff4dc':'#ffffff');
+  const nk=R[i+1]&&R[i+1].k,xl=(nk=='a'||nk=='r'||nk=='ta'||nk=='tr')?xT:0;fr(xl,y+RH-1,Wt-xl,1,LN)});
+ for(let q=0;q<2+(S.rv?1:0)+(S.act?1:0);q++)fr(0,yE+RH*(q+1)-1,Wt,1,LN);
+ for(let i=0;i<=g.cs.length;i++)fr(X0+i*g.CW,TH+HH,1,Ht-TH-HH,LN);
+ fr(X0-1,TH,2,Ht-TH,LN);
+ const sh=(d,col,al)=>fr(X0+g.xOf(d),yR,Math.max(g.xOf(d+1)-g.xOf(d),1),R.length*RH,col,al);
+ if(S.rest>0&&(g.sc=='day'||g.sc=='week'||g.sc=='biweek'))for(let d=g.c0;d<e0;d++)if(isRest(d)&&!H.has(d))sh(d,LN,.45);
+ H.forEach(d=>{if(d>=g.c0&&d<e0)sh(d,'#fbe3df',.7)});
+ cnyR().forEach(([a,b])=>{if(b>=g.c0&&a<e0)tx('春節',X0+(g.xOf(a)+g.xOf(b+1))/2,yR+8,{c:'#d32f2f',a:'center',z:8})});
+ const pat=(()=>{const q=document.createElement('canvas');q.width=q.height=8;const p=q.getContext('2d');p.strokeStyle='rgba(0,0,0,.3)';p.lineWidth=2;p.beginPath();p.moveTo(0,8);p.lineTo(8,0);p.stroke();return x.createPattern(q,'repeat')})();
+ const bar=(y,a,b,col,mode)=>{const l=X0+g.xOf(a),w=Math.max(X0+g.xOf(b+1)-l,3);
+  if(mode=='tot'){fr(l,y+14,w,10,'#1d2a24');return}
+  x.fillStyle=col;x.fillRect(l,y+11,w,16);if(mode=='a'){x.fillStyle=pat;x.fillRect(l,y+11,w,16)}
+  x.strokeStyle='rgba(0,0,0,.35)';x.lineWidth=1;x.strokeRect(l+.5,y+11.5,w-1,15)};
+ const MU='#111';
+ R.forEach((r,i)=>{const y=yR+i*RH,m=y+RH/2,mm=MULTI?y+RH*NR/2:m;
+  if(r.k[0]=='t'){const q=r.k=='tp'?T.p:r.k=='tr'?totR():T.a;
+   if(r.k=='tp')tx('總工期',xN+4,mm,{b:1});
+   if(MULTI)tx(r.k=='tp'?'預定':r.k=='tr'?'修正':'實際',xT+4,m,{c:MU,z:13});
+   if(q){tx(String(dur(q[0],q[1])),xD+wD-6,m,{b:1,a:'right'});tx(fd(iso(q[0])),xS+6,m,{b:1});tx(fd(iso(q[1])),xE+6,m,{b:1});bar(y,q[0],q[1],r.k=='tp'?(S.tp||'#000000'):r.k=='tr'?'#e08a00':(S.ta||'#888888'),r.k=='ta'?'a':'p')}
+  }else if(r.k=='p'){const t=r.t;
+   fr(2,mm-12,24,24,t.c);x.strokeStyle='rgba(0,0,0,.4)';x.lineWidth=1;x.strokeRect(2.5,mm-11.5,23,23);tx(String(r.i+1),14,mm,{b:1,a:'center',c:ink(t.c),z:10});
+   x.save();x.beginPath();x.rect(xN,y,wN,NR*RH);x.clip();tx(t.n,xN+4,mm);x.restore();
+   if(MULTI)tx('預定',xT+4,m,{c:MU,z:13});
+   {const pp=S.t.find(z=>z.id===t.pre);if(pp)tx(String(S.t.indexOf(pp)+1),xP+wP/2,m,{a:'center'})}tx(String(dur(pd(t.s),pd(t.e))),xD+wD-6,m,{a:'right'});tx(fd(t.s),xS+6,m);tx(fd(t.e),xE+6,m);bar(y,pd(t.s),pd(t.e),t.c,'p');
+  }else if(r.k=='r'){const t=r.t,q=RV[t.id];fr(xT+4,m-6,12,12,'#e08a00');tx('修正',xT+20,m,{c:MU,z:13});
+   if(q){tx(String(dur(q.s,q.e)),xD+wD-6,m,{a:'right'});tx(fd(iso(q.s)),xS+6,m);tx(fd(iso(q.e)),xE+6,m);bar(y,q.s,q.e,'#e08a00','r');const v=q.e-pd(t.e);tx(v>0?'晚'+v+'天':v<0?'早'+(-v)+'天':'準時',X0+g.xOf(q.e+1)+4,m,{b:1,z:12,c:v>0?'#a01810':'#0b6b3a'})}
+  }else{const t=r.t;fr(xT+4,m-6,12,12,t.ac||t.c);tx('實際',xT+20,m,{c:MU,z:13});
+   if(t.as&&t.ae){const s=pd(t.as),e=pd(t.ae),v=e-pd(t.e);
+    tx(String(dur(s,e)),xD+wD-6,m,{a:'right'});tx(fd(t.as),xS+6,m);tx(fd(t.ae),xE+6,m);bar(y,s,e,t.ac||t.c,'a');
+    tx(v>0?'晚'+v+'天':v<0?'早'+(-v)+'天':'準時',X0+g.xOf(e+1)+4,m,{b:1,z:12,c:v>0?'#a01810':'#0b6b3a'})}}
+ });
+ tx('人力配置',xE+wE-8,yE+RH/2,{b:1,a:'right',c:'#a01810'});
+ const FU=S.fu||'萬元';tx('資金預估（'+FU+'）',xE+wE-8,yE+RH*1.5,{a:'right',c:'#1f5fbf',z:12});if(S.rv)tx('資金預估修正（'+FU+'）',xE+wE-8,yE+RH*2.5,{a:'right',c:'#c26a00',z:12});if(S.act)tx('資金實際（'+FU+'）',xE+wE-8,yE+RH*(2.5+(S.rv?1:0)),{a:'right',c:'#7b1fa2',z:12});
+ [['fp',1.5,'#1f5fbf'],['fr',2.5,'#c26a00'],['fa',2.5+(S.rv?1:0),'#7b1fa2']].forEach(([kk,ry,col])=>{if(kk=='fa'&&!S.act)return;if(kk=='fr'&&!S.rv)return;const mp=S[kk]||{};let d0=new Date(g.mn*DAY),yy=d0.getUTCFullYear(),mo=d0.getUTCMonth()+1;while(U(yy,mo,1)<e0){const l=X0+g.xOf(Math.max(U(yy,mo,1),g.c0)),r=X0+g.xOf(U(yy,mo+1,1)),v=mp[yy+'-'+mo];if(v!==''&&v!=null)tx(String(v),(l+r)/2,yE+RH*ry,{c:col,a:'center'});if(++mo>12){mo=1;yy++}}});
+ {let d0=new Date(g.mn*DAY),yy=d0.getUTCFullYear(),mo=d0.getUTCMonth()+1;while(U(yy,mo,1)<=g.mx){const l=X0+g.xOf(Math.max(U(yy,mo,1),g.c0)),r=X0+g.xOf(U(yy,mo+1,1)),v=S.man[yy+'-'+mo];if(v!==''&&v!=null)tx(String(v),(l+r)/2,yE+RH/2,{b:1,c:'#a01810',a:'center'});if(++mo>12){mo=1;yy++}}}
+ x.strokeStyle=LN;x.lineWidth=1;x.strokeRect(.5,TH+.5,Wt-1,Ht-TH-1);
+ {const d0=new Date(),n=U(d0.getFullYear(),d0.getMonth()+1,d0.getDate());if(S.td!==false&&n>=g.cs[0]&&n<e0){const px=X0+(g.xOf(n)+g.xOf(n+1))/2;x.save();x.strokeStyle='#e53935';x.lineWidth=2;x.setLineDash([6,4]);x.beginPath();x.moveTo(px,TH);x.lineTo(px,Ht);x.stroke();x.restore();fr(px+3,TH+2,52,26,'#e53935');tx('今日',px+29,TH+15,{c:'#fff',z:11,a:'center'})}}
+ if(SH){const D=sData(),CH=SH/2,F=fData();headS(x,0,Ht+10,LW,CH-10,1.9,D);if(D)plotS(x,X0,Ht+10,GW,CH-10,1.9,D);headS(x,0,Ht+CH+10,LW,CH-10,1.9,F,'資金 S 曲線（折線＝累計%，柱＝每月金額）');if(F)plotS(x,X0,Ht+CH+10,GW,CH-10,1.9,F)}
+ return c}
+document.getElementById('pdf').onclick=async()=>{
+ say('產生 PDF 中…');
+ try{
+  if(!GM||!GM.xOf){say('尚無資料可匯出');return}
+  H=holSet();
+  const k=Math.min(3,15000/(GM.cs.length*GM.CW+600)),c=buildCanvas(k),T=(S.title||'進度表').replace(/[\\/:*?"<>|]/g,'')||'進度表';
+  if(window.jspdf){
+   const psz=document.getElementById('psz').value,por=document.getElementById('por').value,D=psz=='a3'?[420,297]:[297,210],PW=por=='landscape'?D[0]:D[1],PH=por=='landscape'?D[1]:D[0];
+   const pdf=new window.jspdf.jsPDF({orientation:por,unit:'mm',format:psz}),sc=Math.min((PW-16)/c.width,(PH-16)/c.height);
+   pdf.addImage(c.toDataURL('image/jpeg',.97),'JPEG',8,8,c.width*sc,c.height*sc);
+   await saveFile(T+'.pdf',pdf.output('arraybuffer'),c.toDataURL('image/jpeg',.8))
+  }else{const b=await new Promise(r=>c.toBlob(r,'image/png'));await saveFile(T+'.png',b,c.toDataURL('image/jpeg',.8))}
+ }catch(err){say('產生失敗：'+((err&&err.message)||err))}};
+render();
+</script>
+</body>
+</html>
